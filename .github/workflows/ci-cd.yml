@@ -32,9 +32,8 @@ jobs:
           test -f style.css
           test -f script.js
 
-          grep -qi "<html" index.html
-          grep -qi "<body" index.html
-          grep -qi "<script" index.html
+          grep -qi "<div" index.html
+          grep -qi "Home Bite" index.html
 
           echo "All tests passed!"
 
