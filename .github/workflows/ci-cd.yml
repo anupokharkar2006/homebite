@@ -1,0 +1,76 @@
+name: Home Bite CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-test-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          echo "Building Home Bite application..."
+          test -f index.html
+          test -f style.css
+          test -f script.js
+          echo "Build successful!"
+
+      - name: Test
+        run: |
+          echo "Testing Home Bite application..."
+          test -s index.html
+          test -s style.css
+          test -s script.js
+          echo "All tests passed!"
+
+      - name: Package
+        run: |
+          mkdir package
+          cp index.html style.css script.js package/
+          cd package
+          zip -r ../homebite.zip .
+          echo "Package created successfully!"
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: homebite-package
+          path: homebite.zip
+
+  deploy:
+    needs: build-test-package
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload website
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
